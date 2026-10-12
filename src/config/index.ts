@@ -8,6 +8,5 @@ const __filename = fileURLToPath(import.meta.url);
 
 export default {
     port: process.env.PORT || 3000,
-    db: process.env.DB,
     node_env: process.env.node_env || 'development'
 }

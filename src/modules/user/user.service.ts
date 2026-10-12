@@ -1,28 +1,54 @@
-import httpStatus from "http-status";
 
-const getUser = async () => {
-  const data = [
-    {
-      id: 1,
-      name: "Jon do",
-      email: "john.doe@example.com",
-      password: "password123",
-      phone: "1234567890",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      password: "password456",
-      phone: "0987654321",
-    },
-  ];
+import httpStatus from "http-status"
+import AppError from "../../middleware/AppError.js"
+import type { Prisma } from "@prisma/client"
+import prisma from "../../utils/prisma.js"
 
-  return data;
-};
 
-const userService = {
-  getUser,
-};
+const createUser = async(payload: Prisma.UserCreateInput)=>{
+    const newUser = await prisma.user.create({
+        
+        data: payload
+    
+    })
 
-export default userService;
+    if(!newUser){
+        throw new AppError(httpStatus.BAD_GATEWAY, "user creation failed!")
+    }
+
+    return newUser
+}
+
+const getSingleUser = async (id:any)=>{
+    const user = await prisma.user.findUnique({
+        where: {
+            id: id,
+        }
+    })
+
+    if(!user){
+        throw new AppError(httpStatus.NOT_FOUND, "user not found")
+    }
+
+    return user;
+}
+
+
+
+const getUser = async()=>{
+    const data = await prisma.user.findMany();
+
+    if (!data){
+        throw new AppError(httpStatus.NOT_FOUND, "User Data Not found")
+    }
+    return data
+}
+
+
+const userService ={
+    getUser,
+    createUser,
+    getSingleUser
+}
+
+export default userService
